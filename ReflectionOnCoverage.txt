@@ -1,0 +1,12 @@
+Reflection on 100% Coverage
+Achieving 100% test coverage ensures all lines, branches, and functions in your code are executed during tests, offering confidence in code reliability and uncovering untested areas. However, it does not guarantee bug-free software or logical correctness, as coverage measures execution, not quality.
+
+Key Points:
+
+Benefits: Encourages comprehensive testing, aids refactoring, and increases confidence in the codebase.
+
+Limitations: Can lead to meaningless tests, ignores performance issues, and may miss real-world scenarios.
+
+Balanced Approach: Focus on testing critical paths, edge cases, and error handling. Prioritize meaningful assertions and complement unit tests with integration tests.
+
+Coverage is a tool for confidence, not the sole measure of code quality. Aim for meaningful tests over achieving a perfect percentage.
