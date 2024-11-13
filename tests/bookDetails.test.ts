@@ -25,6 +25,55 @@ describe('showBookDtls', () => {
         jest.clearAllMocks(); // Clear mocks after each test
     });
 
+    it('should return 404 when the book ID is invalid', async () => {
+        Book.findOne = jest.fn().mockReturnValue({
+            populate: jest.fn().mockResolvedValue(null),
+        });
+
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+        };
+
+        await showBookDtls(res as Response, 'invalidID');
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith('Book invalidID not found');
+    });
+
+    it('should return 404 when no book details are available', async () => {
+        Book.findOne = jest.fn().mockReturnValue({
+            populate: jest.fn().mockResolvedValue({ title: 'Some Title', author: { name: 'Some Author' } }),
+        });
+
+        BookInstance.find = jest.fn().mockReturnValue({
+            select: jest.fn().mockResolvedValue([]),
+        });
+
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+        };
+
+        await showBookDtls(res as Response, '12345');
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.send).toHaveBeenCalledWith('Book details not found for book 12345');
+    });
+
+    it('should return 500 when getBook fails', async () => {
+        Book.findOne = jest.fn().mockImplementation(() => {
+            throw new Error('Database error');
+        });
+
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+        };
+
+        await showBookDtls(res as Response, '12345');
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith('Error fetching book 12345');
+    });
+
     it('should return book details when the book and copies exist', async () => {
         // Mocking the Book model's findOne and populate methods
         const mockFindOne = jest.fn().mockReturnValue({

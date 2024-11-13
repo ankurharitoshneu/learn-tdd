@@ -20,6 +20,40 @@ describe("showAllBooksStatus", () => {
         jest.clearAllMocks();
     });
 
+    it('should return 500 when there is a database error', async () => {
+        BookInstance.find = jest.fn().mockImplementation(() => {
+            throw new Error('Database error');
+        });
+
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+        };
+
+        await showAllBooksStatus(res as Response);
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.send).toHaveBeenCalledWith('Status not found');
+    });
+
+    it('should handle book instances with unexpected data gracefully', async () => {
+        const mockInstances = [
+            { book: null, status: 'Available' },
+            { book: { title: 'Book 2' }, status: null },
+        ];
+        BookInstance.find = jest.fn().mockReturnValue({
+            populate: jest.fn().mockResolvedValue(mockInstances),
+        });
+
+        const res = {
+            status: jest.fn().mockReturnThis(),
+            send: jest.fn(),
+        };
+
+        await showAllBooksStatus(res as Response);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.send).toEqual([]);
+    });
+
     it("should return all books with status 'Available'", async () => {
         // Arrange: Mock the BookInstance model's find and populate methods
         const mockFind = jest.fn().mockReturnValue({
